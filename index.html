@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flores Amarillas</title>
+    <title>Para Ti - Flores Amarillas</title>
     <style>
         * {
             margin: 0;
@@ -12,9 +12,11 @@
         }
 
         body {
-            background-color: #050505; /* Fondo súper oscuro cinematográfico */
-            background-image: radial-gradient(circle at center, #1a1a1a 0%, #000 100%);
+            /* Fondo cinematográfico de ensueño */
+            background-color: #030303;
+            background-image: radial-gradient(circle at center, #1a1500 0%, #030303 100%);
             height: 100vh;
+            width: 100vw;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -22,7 +24,6 @@
             font-family: 'Georgia', serif;
         }
 
-        /* --- Pantalla de Inicio --- */
         #start-screen {
             position: absolute;
             top: 0;
@@ -33,48 +34,79 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            background-color: rgba(0, 0, 0, 0.85);
-            z-index: 10;
-            transition: opacity 2s ease-in-out;
+            background-color: #030303;
+            z-index: 100;
+            transition: opacity 1.5s ease-in-out;
         }
 
         .cinematic-text {
             color: #FFD700;
-            font-size: 1.5rem;
-            letter-spacing: 4px;
+            font-size: 2.5rem;
+            letter-spacing: 6px;
             text-transform: uppercase;
-            margin-bottom: 30px;
-            opacity: 0.8;
-            text-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+            margin-bottom: 40px;
+            opacity: 0.9;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.5), 0 0 40px rgba(255, 215, 0, 0.2);
+            font-weight: lighter;
         }
 
         #start-btn {
             background: transparent;
-            border: 1px solid rgba(255, 215, 0, 0.5);
+            border: 1px solid rgba(255, 215, 0, 0.4);
             color: #FFD700;
-            padding: 15px 40px;
-            font-size: 1.2rem;
+            padding: 15px 50px;
+            font-size: 1.1rem;
+            letter-spacing: 2px;
             cursor: pointer;
-            border-radius: 30px;
-            transition: all 0.5s ease;
-            box-shadow: 0 0 20px rgba(255, 215, 0, 0.1);
+            border-radius: 40px;
+            transition: all 0.4s ease;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.05);
+            text-transform: uppercase;
         }
 
         #start-btn:hover {
-            background: rgba(255, 215, 0, 0.1);
-            box-shadow: 0 0 30px rgba(255, 215, 0, 0.4);
+            background: rgba(255, 215, 0, 0.15);
+            box-shadow: 0 0 25px rgba(255, 215, 0, 0.4);
             transform: scale(1.05);
+            border-color: rgba(255, 215, 0, 0.8);
         }
 
-        /* --- Contenedor del Ramo --- */
+        #particles-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            background: #FFD700;
+            box-shadow: 0 0 10px #FFD700, 0 0 20px #FFF;
+            opacity: 0;
+            filter: blur(1px);
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(110vh) translateX(0); }
+            50% { transform: translateY(50vh) translateX(20px); }
+            100% { transform: translateY(-10vh) translateX(-20px); }
+        }
+
+        @keyframes pulseParticle {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 0.8; }
+        }
+
         #bouquet-container {
             width: 100%;
             height: 100%;
             max-width: 600px;
-            max-height: 800px;
             position: relative;
-            opacity: 0;
-            transition: opacity 2s ease-in-out 1s;
+            z-index: 10;
         }
 
         svg {
@@ -83,156 +115,213 @@
             overflow: visible;
         }
 
-        /* --- Animaciones Vectoriales --- */
+        .flower-group {
+            /* El origen es la base inferior del SVG (x=250, y=800) */
+            transform-origin: 250px 800px; 
+        }
+
+        /* Animación de brisa suave (Breeze) */
+        @keyframes sway {
+            0% { transform: rotate(-2deg); }
+            100% { transform: rotate(2deg); }
+        }
+
+        /* Tallo (Crecimiento vectorizado) */
         .stem {
             fill: none;
-            stroke: #2e592f;
-            stroke-width: 6;
+            stroke: #2A4B29;
+            stroke-width: 7;
             stroke-linecap: round;
-            stroke-dasharray: 1000;
-            stroke-dashoffset: 1000;
-            filter: drop-shadow(0 0 5px rgba(46, 89, 47, 0.5));
-        }
-
-        .petal {
-            fill: #FFD700;
-            stroke: #B8860B;
-            stroke-width: 1;
-            transform-origin: center;
-            opacity: 0;
-            transform: scale(0);
-            filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.6));
-        }
-
-        .center {
-            fill: #5C4033;
-            transform-origin: center;
-            opacity: 0;
-            transform: scale(0);
-        }
-
-        /* Clases que se activan con JS */
-        .animate-stem {
-            animation: drawStem 3s ease-in-out forwards;
-        }
-
-        .animate-petal {
-            animation: bloomPetal 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-        }
-
-        .animate-center {
-            animation: bloomCenter 1s ease-out forwards;
+            stroke-dasharray: 2000;
+            stroke-dashoffset: 2000;
+            filter: drop-shadow(0 0 8px rgba(42, 75, 41, 0.6));
         }
 
         @keyframes drawStem {
             to { stroke-dashoffset: 0; }
         }
 
+        /* Pétalos y su resplandor */
+        .petal {
+            fill: #FFCC00;
+            stroke: #E6A800;
+            stroke-width: 0.5;
+            transform-origin: 0 0;
+            transform: scale(0);
+            opacity: 0;
+            filter: drop-shadow(0 0 6px rgba(255, 204, 0, 0.7));
+        }
+
         @keyframes bloomPetal {
-            0% { opacity: 0; transform: scale(0) rotate(-20deg); }
-            100% { opacity: 1; transform: scale(1) rotate(0deg); }
+            0% { transform: scale(0); opacity: 0; }
+            70% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* Centro de la flor */
+        .flower-center {
+            fill: #3e2714;
+            transform-origin: center;
+            transform: scale(0);
+            opacity: 0;
+            filter: drop-shadow(0 0 5px rgba(0,0,0,0.5));
         }
 
         @keyframes bloomCenter {
-            0% { opacity: 0; transform: scale(0); }
-            100% { opacity: 1; transform: scale(1); }
+            0% { transform: scale(0); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
         }
+
     </style>
 </head>
 <body>
 
-    <!-- Pantalla inicial de tap/click -->
     <div id="start-screen">
-        <div class="cinematic-text">Para ti</div>
+        <h1 class="cinematic-text">Para ti</h1>
         <button id="start-btn">Descubrir</button>
     </div>
 
-    <!-- Contenedor donde se dibujarán las flores -->
+    <!-- Contenedor del fondo mágico -->
+    <div id="particles-container"></div>
+
+    <!-- Lienzo vectorial del ramo -->
     <div id="bouquet-container">
-        <svg id="bouquet" viewBox="0 0 500 800"></svg>
+        <svg id="bouquet" viewBox="0 0 500 800" preserveAspectRatio="xMidYMax meet"></svg>
     </div>
 
     <script>
-        const startBtn = document.getElementById('start-btn');
-        const startScreen = document.getElementById('start-screen');
-        const container = document.getElementById('bouquet-container');
-        const svg = document.getElementById('bouquet');
+        function createParticles() {
+            const container = document.getElementById('particles-container');
+            const numParticles = 50;
 
-        // Configuración de las flores (Posición X, Posición Y del centro de la flor, Curva del tallo, Escala)
-        const flowers = [
-            { cx: 250, cy: 200, stemQx: 250, stemQy: 500, scale: 1, delay: 0 },       // Centro alta
-            { cx: 120, cy: 300, stemQx: 180, stemQy: 550, scale: 0.8, delay: 0.5 },   // Izquierda
-            { cx: 380, cy: 300, stemQx: 320, stemQy: 550, scale: 0.8, delay: 1.0 },   // Derecha
-            { cx: 180, cy: 450, stemQx: 200, stemQy: 600, scale: 0.7, delay: 1.5 },   // Izquierda baja
-            { cx: 320, cy: 450, stemQx: 300, stemQy: 600, scale: 0.7, delay: 2.0 }    // Derecha baja
+            for (let i = 0; i < numParticles; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                
+                // Posición horizontal aleatoria
+                particle.style.left = Math.random() * 100 + 'vw';
+                
+                // Tamaño variable (polvillo y luciérnagas más grandes)
+                const size = Math.random() * 3 + 1.5;
+                particle.style.width = size + 'px';
+                particle.style.height = size + 'px';
+
+                // Variación de colores (Dorados y blancos)
+                const colors = ['#FFD700', '#FFF8DC', '#FFA500'];
+                particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+
+                // Tiempos aleatorios para que sea orgánico
+                const floatDuration = Math.random() * 15 + 10; // 10s - 25s
+                const pulseDuration = Math.random() * 3 + 2;   // 2s - 5s
+                const delay = Math.random() * 5;               // 0s - 5s
+
+                particle.style.animation = `
+                    floatUp ${floatDuration}s ease-in infinite,
+                    pulseParticle ${pulseDuration}s ease-in-out infinite alternate
+                `;
+                particle.style.animationDelay = `${delay}s, ${delay}s`;
+
+                container.appendChild(particle);
+            }
+        }
+
+        // Cada flor tiene una posición de centro (cx, cy), 
+        // puntos de control para la curva del tallo (cpX, cpY),
+        // escala, retraso de aparición y velocidad del balanceo del viento.
+        const flowersData = [
+            { cx: 250, cy: 220, cpX: 250, cpY: 550, scale: 1.15, delay: 0.5, swayDur: 5.5 }, // Central Alta
+            { cx: 110, cy: 350, cpX: 180, cpY: 600, scale: 0.9, delay: 1.2, swayDur: 6.0 }, // Izq Media
+            { cx: 390, cy: 350, cpX: 320, cpY: 600, scale: 0.9, delay: 1.6, swayDur: 5.8 }, // Der Media
+            { cx: 60,  cy: 520, cpX: 150, cpY: 700, scale: 0.75, delay: 2.3, swayDur: 4.5 }, // Izq Baja
+            { cx: 440, cy: 520, cpX: 350, cpY: 700, scale: 0.75, delay: 2.7, swayDur: 4.8 }, // Der Baja
+            { cx: 250, cy: 450, cpX: 250, cpY: 680, scale: 1.0,  delay: 3.2, swayDur: 6.2 }  // Central Baja
         ];
 
-        function createBouquet() {
-            flowers.forEach((flower, index) => {
-                // 1. Dibujar el tallo (curva bezier desde abajo hacia la flor)
-                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                const startX = 250;
-                const startY = 800;
-                path.setAttribute('d', `M ${startX} ${startY} Q ${flower.stemQx} ${flower.stemQy} ${flower.cx} ${flower.cy}`);
-                path.classList.add('stem');
-                path.style.animationDelay = `${flower.delay}s`;
-                svg.appendChild(path);
+        function drawBouquet() {
+            const svg = document.getElementById('bouquet');
+            const baseX = 250;
+            const baseY = 800; // Nacen desde el fondo
 
-                // 2. Dibujar los pétalos amarillos
-                const numPetals = 12;
-                const petalRadius = 45 * flower.scale;
-                
+            flowersData.forEach((f) => {
+                // 1. Grupo principal para la brisa
+                const flowerGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                flowerGroup.classList.add('flower-group');
+                // Efecto de viento constante e independiente
+                flowerGroup.style.animation = `sway ${f.swayDur}s ease-in-out infinite alternate`;
+                flowerGroup.style.animationDelay = `${Math.random() * 2}s`; // Desfase inicial de la brisa
+
+                // 2. El Tallo (Curva Bézier cuadrática)
+                const stem = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                stem.setAttribute('d', `M ${baseX} ${baseY} Q ${f.cpX} ${f.cpY} ${f.cx} ${f.cy}`);
+                stem.classList.add('stem');
+                stem.style.animation = `drawStem 3.5s ease-in-out forwards`;
+                stem.style.animationDelay = `${f.delay}s`;
+                flowerGroup.appendChild(stem);
+
+                // 3. Cabeza de la flor (Contenedor que se traslada a la posición final)
+                const headGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                headGroup.setAttribute('transform', `translate(${f.cx}, ${f.cy}) scale(${f.scale})`);
+
+                // 4. Los Pétalos
+                const numPetals = 16;
                 for (let i = 0; i < numPetals; i++) {
-                    const angle = (i * 360) / numPetals;
-                    const radian = angle * (Math.PI / 180);
+                    const angle = (360 / numPetals) * i;
                     
-                    // Calcular la posición de cada pétalo alrededor del centro
-                    const px = flower.cx + Math.cos(radian) * (petalRadius * 0.5);
-                    const py = flower.cy + Math.sin(radian) * (petalRadius * 0.5);
-
+                    // Grupo para rotar el pétalo
+                    const petalRotater = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                    // Trasladamos un poco hacia afuera (0, -12) para que nazcan desde el borde del centro
+                    petalRotater.setAttribute('transform', `rotate(${angle}) translate(0, -12)`);
+                    
                     const petal = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                    // Forma de gota/pétalo usando SVG path
-                    petal.setAttribute('d', `M ${px},${py} C ${px + 20*flower.scale},${py - 30*flower.scale} ${px + 40*flower.scale},${py - 10*flower.scale} ${px + 30*flower.scale},${py + 20*flower.scale} C ${px + 10*flower.scale},${py + 40*flower.scale} ${px - 20*flower.scale},${py + 20*flower.scale} ${px},${py}`);
-                    
-                    // Rotar el pétalo para que apunte hacia afuera del centro
-                    petal.setAttribute('transform', `rotate(${angle + 45}, ${px}, ${py})`);
+                    // Curva perfecta para pétalos de margarita/girasol
+                    petal.setAttribute('d', 'M 0,0 C 15,-20 15,-50 0,-60 C -15,-50 -15,-20 0,0');
                     petal.classList.add('petal');
+                    petal.style.animation = `bloomPetal 1.5s ease-out forwards`;
                     
-                    // El pétalo aparece después de que su tallo haya terminado de crecer
-                    petal.style.animationDelay = `${flower.delay + 2.5 + (i * 0.1)}s`;
-                    svg.appendChild(petal);
+                    // Cada pétalo se retrasa un poquito para dar efecto circular de apertura
+                    // El tiempo base debe ser después de que el tallo termina de crecer (aprox + 3s)
+                    petal.style.animationDelay = `${f.delay + 3 + (i * 0.05)}s`;
+                    
+                    petalRotater.appendChild(petal);
+                    headGroup.appendChild(petalRotater);
                 }
 
-                // 3. Dibujar el centro de la flor (pistilo oscuro)
+                // 5. El Centro (Pistilo)
                 const center = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-                center.setAttribute('cx', flower.cx);
-                center.setAttribute('cy', flower.cy);
-                center.setAttribute('r', 18 * flower.scale);
-                center.classList.add('center');
-                center.style.transformOrigin = `${flower.cx}px ${flower.cy}px`;
-                center.style.animationDelay = `${flower.delay + 3.5}s`;
-                svg.appendChild(center);
+                center.setAttribute('cx', 0);
+                center.setAttribute('cy', 0);
+                center.setAttribute('r', 16); // Radio del centro
+                center.classList.add('flower-center');
+                center.style.animation = `bloomCenter 1s ease-out forwards`;
+                center.style.animationDelay = `${f.delay + 3.8}s`; // Aparece casi al final de los pétalos
+                
+                headGroup.appendChild(center);
+                
+                // Ensamblar todo
+                flowerGroup.appendChild(headGroup);
+                svg.appendChild(flowerGroup);
             });
         }
 
-        // Iniciar la experiencia al hacer click/tap
-        startBtn.addEventListener('click', () => {
-            // Desvanecer pantalla inicial
-            startScreen.style.opacity = '0';
-            setTimeout(() => {
-                startScreen.style.display = 'none';
-                container.style.opacity = '1';
-                
-                // Generar el SVG dinámicamente
-                createBouquet();
+        document.addEventListener('DOMContentLoaded', () => {
+            // Iniciar las partículas de fondo inmediatamente
+            createParticles();
 
-                // Activar las animaciones agregando las clases
+            const startBtn = document.getElementById('start-btn');
+            const startScreen = document.getElementById('start-screen');
+
+            startBtn.addEventListener('click', () => {
+                // Desvanecer la pantalla negra
+                startScreen.style.opacity = '0';
+                
                 setTimeout(() => {
-                    document.querySelectorAll('.stem').forEach(el => el.classList.add('animate-stem'));
-                    document.querySelectorAll('.petal').forEach(el => el.classList.add('animate-petal'));
-                    document.querySelectorAll('.center').forEach(el => el.classList.add('animate-center'));
-                }, 100);
-            }, 2000); // 2 segundos de transición cinematográfica
+                    // Removerla del flujo para evitar clicks accidentales
+                    startScreen.style.display = 'none';
+                    
+                    // Iniciar la magia de dibujar el ramo
+                    drawBouquet();
+                }, 1500); // Esperar que termine el fade out
+            });
         });
     </script>
 </body>
