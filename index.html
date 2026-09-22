@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flores Amarillas</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #050505; /* Fondo súper oscuro cinematográfico */
+            background-image: radial-gradient(circle at center, #1a1a1a 0%, #000 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            font-family: 'Georgia', serif;
+        }
+
+        /* --- Pantalla de Inicio --- */
+        #start-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: rgba(0, 0, 0, 0.85);
+            z-index: 10;
+            transition: opacity 2s ease-in-out;
+        }
+
+        .cinematic-text {
+            color: #FFD700;
+            font-size: 1.5rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            margin-bottom: 30px;
+            opacity: 0.8;
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+        }
+
+        #start-btn {
+            background: transparent;
+            border: 1px solid rgba(255, 215, 0, 0.5);
+            color: #FFD700;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            border-radius: 30px;
+            transition: all 0.5s ease;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.1);
+        }
+
+        #start-btn:hover {
+            background: rgba(255, 215, 0, 0.1);
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.4);
+            transform: scale(1.05);
+        }
+
+        /* --- Contenedor del Ramo --- */
+        #bouquet-container {
+            width: 100%;
+            height: 100%;
+            max-width: 600px;
+            max-height: 800px;
+            position: relative;
+            opacity: 0;
+            transition: opacity 2s ease-in-out 1s;
+        }
+
+        svg {
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+        }
+
+        /* --- Animaciones Vectoriales --- */
+        .stem {
+            fill: none;
+            stroke: #2e592f;
+            stroke-width: 6;
+            stroke-linecap: round;
+            stroke-dasharray: 1000;
+            stroke-dashoffset: 1000;
+            filter: drop-shadow(0 0 5px rgba(46, 89, 47, 0.5));
+        }
+
+        .petal {
+            fill: #FFD700;
+            stroke: #B8860B;
+            stroke-width: 1;
+            transform-origin: center;
+            opacity: 0;
+            transform: scale(0);
+            filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.6));
+        }
+
+        .center {
+            fill: #5C4033;
+            transform-origin: center;
+            opacity: 0;
+            transform: scale(0);
+        }
+
+        /* Clases que se activan con JS */
+        .animate-stem {
+            animation: drawStem 3s ease-in-out forwards;
+        }
+
+        .animate-petal {
+            animation: bloomPetal 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        .animate-center {
+            animation: bloomCenter 1s ease-out forwards;
+        }
+
+        @keyframes drawStem {
+            to { stroke-dashoffset: 0; }
+        }
+
+        @keyframes bloomPetal {
+            0% { opacity: 0; transform: scale(0) rotate(-20deg); }
+            100% { opacity: 1; transform: scale(1) rotate(0deg); }
+        }
+
+        @keyframes bloomCenter {
+            0% { opacity: 0; transform: scale(0); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Pantalla inicial de tap/click -->
+    <div id="start-screen">
+        <div class="cinematic-text">Para ti</div>
+        <button id="start-btn">Descubrir</button>
+    </div>
+
+    <!-- Contenedor donde se dibujarán las flores -->
+    <div id="bouquet-container">
+        <svg id="bouquet" viewBox="0 0 500 800"></svg>
+    </div>
+
+    <script>
+        const startBtn = document.getElementById('start-btn');
+        const startScreen = document.getElementById('start-screen');
+        const container = document.getElementById('bouquet-container');
+        const svg = document.getElementById('bouquet');
+
+        // Configuración de las flores (Posición X, Posición Y del centro de la flor, Curva del tallo, Escala)
+        const flowers = [
+            { cx: 250, cy: 200, stemQx: 250, stemQy: 500, scale: 1, delay: 0 },       // Centro alta
+            { cx: 120, cy: 300, stemQx: 180, stemQy: 550, scale: 0.8, delay: 0.5 },   // Izquierda
+            { cx: 380, cy: 300, stemQx: 320, stemQy: 550, scale: 0.8, delay: 1.0 },   // Derecha
+            { cx: 180, cy: 450, stemQx: 200, stemQy: 600, scale: 0.7, delay: 1.5 },   // Izquierda baja
+            { cx: 320, cy: 450, stemQx: 300, stemQy: 600, scale: 0.7, delay: 2.0 }    // Derecha baja
+        ];
+
+        function createBouquet() {
+            flowers.forEach((flower, index) => {
+                // 1. Dibujar el tallo (curva bezier desde abajo hacia la flor)
+                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                const startX = 250;
+                const startY = 800;
+                path.setAttribute('d', `M ${startX} ${startY} Q ${flower.stemQx} ${flower.stemQy} ${flower.cx} ${flower.cy}`);
+                path.classList.add('stem');
+                path.style.animationDelay = `${flower.delay}s`;
+                svg.appendChild(path);
+
+                // 2. Dibujar los pétalos amarillos
+                const numPetals = 12;
+                const petalRadius = 45 * flower.scale;
+                
+                for (let i = 0; i < numPetals; i++) {
+                    const angle = (i * 360) / numPetals;
+                    const radian = angle * (Math.PI / 180);
+                    
+                    // Calcular la posición de cada pétalo alrededor del centro
+                    const px = flower.cx + Math.cos(radian) * (petalRadius * 0.5);
+                    const py = flower.cy + Math.sin(radian) * (petalRadius * 0.5);
+
+                    const petal = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                    // Forma de gota/pétalo usando SVG path
+                    petal.setAttribute('d', `M ${px},${py} C ${px + 20*flower.scale},${py - 30*flower.scale} ${px + 40*flower.scale},${py - 10*flower.scale} ${px + 30*flower.scale},${py + 20*flower.scale} C ${px + 10*flower.scale},${py + 40*flower.scale} ${px - 20*flower.scale},${py + 20*flower.scale} ${px},${py}`);
+                    
+                    // Rotar el pétalo para que apunte hacia afuera del centro
+                    petal.setAttribute('transform', `rotate(${angle + 45}, ${px}, ${py})`);
+                    petal.classList.add('petal');
+                    
+                    // El pétalo aparece después de que su tallo haya terminado de crecer
+                    petal.style.animationDelay = `${flower.delay + 2.5 + (i * 0.1)}s`;
+                    svg.appendChild(petal);
+                }
+
+                // 3. Dibujar el centro de la flor (pistilo oscuro)
+                const center = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                center.setAttribute('cx', flower.cx);
+                center.setAttribute('cy', flower.cy);
+                center.setAttribute('r', 18 * flower.scale);
+                center.classList.add('center');
+                center.style.transformOrigin = `${flower.cx}px ${flower.cy}px`;
+                center.style.animationDelay = `${flower.delay + 3.5}s`;
+                svg.appendChild(center);
+            });
+        }
+
+        // Iniciar la experiencia al hacer click/tap
+        startBtn.addEventListener('click', () => {
+            // Desvanecer pantalla inicial
+            startScreen.style.opacity = '0';
+            setTimeout(() => {
+                startScreen.style.display = 'none';
+                container.style.opacity = '1';
+                
+                // Generar el SVG dinámicamente
+                createBouquet();
+
+                // Activar las animaciones agregando las clases
+                setTimeout(() => {
+                    document.querySelectorAll('.stem').forEach(el => el.classList.add('animate-stem'));
+                    document.querySelectorAll('.petal').forEach(el => el.classList.add('animate-petal'));
+                    document.querySelectorAll('.center').forEach(el => el.classList.add('animate-center'));
+                }, 100);
+            }, 2000); // 2 segundos de transición cinematográfica
+        });
+    </script>
+</body>
+</html>
